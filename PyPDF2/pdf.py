@@ -1719,6 +1719,46 @@ class PageObject(DictionaryObject):
                     if isinstance(i, TextStringObject):
                         text += i
         return text
+    
+    ##
+    # Added by Sam Russell Feburary 2012, this will open an interface to
+    # the set of text objects in a page, to let an application parse it
+    # in its own way. Keen to find a way to do this without duplicating
+    # code - ideally extractText would call this and parse through the
+    # objects from this
+    # <p>
+    # Stability: No idea about stability...
+    # @return An array of TextStringObjects
+    def getTextObjects(self):
+        output = []
+        content = self["/Contents"].getObject()
+        if not isinstance(content, ContentStream):
+            content = ContentStream(content, self.pdf)
+        # Note: we check all strings are TextStringObjects.  ByteStringObjects
+        # are strings where the byte->string encoding was unknown, so adding
+        # them to the text here would be gibberish.
+        for operands,operator in content.operations:
+            if operator == "Tj":
+                _text = operands[0]
+                if isinstance(_text, TextStringObject):
+                    output.append(_text)
+            elif operator == "T*":
+                textoutput.append("\n")
+            elif operator == "'":
+                output.append("\n")
+                _text = operands[0]
+                if isinstance(_text, TextStringObject):
+                    output.append(operands[0])
+            elif operator == '"':
+                _text = operands[2]
+                if isinstance(_text, TextStringObject):
+                    output.append("\n")
+                    output.append(_text)
+            elif operator == "TJ":
+                for i in operands[0]:
+                    if isinstance(i, TextStringObject):
+                        output.append(i)
+        return output
 
     ##
     # A rectangle (RectangleObject), expressed in default user space units,
