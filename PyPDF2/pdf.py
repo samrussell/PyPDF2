@@ -1728,7 +1728,7 @@ class PageObject(DictionaryObject):
     # objects from this
     # <p>
     # Stability: No idea about stability...
-    # @return An array of TextStringObjects
+    # @return An array of TextStringObject
     def getTextObjects(self):
         output = []
         content = self["/Contents"].getObject()
@@ -1855,7 +1855,8 @@ class ContentStream(DecodedStreamObject):
                 while peek not in ('\r', '\n'):
                     peek = stream.read(1)
             else:
-                operands.append(readObject(stream, None))
+                operand = readObject(stream, None)
+                operands.append(operand)
 
     def _readInlineImage(self, stream):
         # begin reading just after the "BI" - begin image
